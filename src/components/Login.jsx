@@ -17,6 +17,7 @@ const Login = () => {
       });
       const result = response.data;
       if (result.status) {
+        localStorage.setItem("user", JSON.stringify(username)); //存储用户信息到浏览器
         navigate("/menu");
       } else {
         alert(result.message);

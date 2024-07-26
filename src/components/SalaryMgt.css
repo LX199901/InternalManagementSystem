@@ -7,9 +7,8 @@
 .search-group {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
-
 
 .input-group {
   display: flex;
@@ -18,14 +17,13 @@
   gap: 10px;
 }
 
-.input-group select{
+.input-group select {
   min-width: 100px;
 }
 
 .input-group input {
   min-width: 250px;
 }
-
 
 .search-button {
   background-color: #28a745;
@@ -47,44 +45,58 @@
 .search-button {
   flex: 0 0 120px;
   /* Adjust width as needed */
-
 }
 
 /*左缩进85*/
 .margin-left-85 {
-  margin-left:85px;
+  margin-left: 85px;
 }
 
-.kr-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+td {
+  text-align: center;
+  padding: 2px 6px;
+  line-height: 0.2;
 }
 
-.kr-table th,
-.kr-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+.col-title {
+  font-size: 13px;
 }
 
-.description-list {
-  padding: 0;
-  /* Remove padding to fit within table cells */
+.col-data {
+  text-align: right;
+  font-size: 13px;
 }
 
-dl {
-  margin: 0;
-  padding: 0;
+table {
+  border-spacing: 0 10px; /* 水平和垂直方向的间距 */
 }
 
-dt {
+.row-border {
+  border-bottom: 3px solid #dddddd; /* 自定义合适的颜色和宽度 */
+}
+/* 强制居中 */
+.force-center {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* 加粗字体 */
+.font-weight {
   font-weight: bold;
-  margin-top: 5px;
 }
 
-dd {
-  margin: 0;
-  margin-bottom: 10px;
+/* 隐藏 Checkbox 选中时的钩子 */
+.ant-checkbox-checked .ant-checkbox-inner::after {
+  display: none; /* 隐藏钩子 */
 }
 
+/* 确保选中时背景颜色仍然可以显示 */
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #009fff; /* 自定义背景颜色 */
+  border-color: #009fff; /* 自定义边框颜色 */
+}
+
+.custom-checkbox {
+  height: 0px; /* 设置复选框的高度 */
+  line-height: 6px; /* 设置行高，使文字和复选框垂直居中 */
+}

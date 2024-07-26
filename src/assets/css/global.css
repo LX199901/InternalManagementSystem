@@ -1,46 +1,46 @@
 /* 设置整体布局和字体 */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
+  font-family: "Arial", sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
 }
 
 /* 设置容器 */
 .shain-ichiran {
-    max-width: 1200px;
-    margin: 50px auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 50px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 /* 标题样式 */
 .shain-ichiran h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
 }
 
 /* 搜索框和按钮的容器 */
 .search-fields {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-    gap: 20px;
-    /* 增加输入框和按钮之间的间距 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 20px;
+  /* 增加输入框和按钮之间的间距 */
 }
 
 /* 搜索框样式 */
 .search-fields input[type="text"],
 .search-fields input[type="date"] {
-    padding: 10px;
-    width: 250px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+  padding: 10px;
+  width: 250px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 /* 搜索框,下拉框,按钮等样式 */
@@ -48,92 +48,97 @@ body {
 .search-select,
 .search-input,
 .search-button {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    height: 40px;
-    box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  height: 40px;
+  box-sizing: border-box;
+  font-family: "Arial", sans-serif;
 }
 
 /* 按钮样式 */
 .shain-ichiran button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #28a745;
-    /* 修改按钮颜色 */
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  padding: 10px 20px;
+  border: none;
+  background-color: #28a745;
+  /* 修改按钮颜色 */
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .shain-ichiran button:hover {
-    background-color: #218838;
-    /* 修改按钮悬停颜色 */
+  background-color: #218838;
+  /* 修改按钮悬停颜色 */
 }
 
 /* 表格样式 */
 .shain-ichiran table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .shain-ichiran th,
 .shain-ichiran td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: left;
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
 }
 
 .shain-ichiran th {
-    background-color: #007bff;
-    /* 表头背景颜色 */
-    color: white;
-    /* 表头文字颜色 */
+  background-color: #007bff;
+  /* 表头背景颜色 */
+  color: white;
+  /* 表头文字颜色 */
 }
 
 .shain-ichiran tbody tr:nth-child(odd) {
-    background-color: #f9f9f9;
+  background-color: #f9f9f9;
 }
 
 .shain-ichiran tbody tr:nth-child(even) {
-    background-color: #fff;
+  background-color: #fff;
 }
 
 /* 错误消息样式 */
 .error-message {
-    color: red;
-    text-align: center;
-    margin-bottom: 20px;
+  color: red;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 /* 标签 */
 .search-label {
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    /* 调整字体大小 */
-    font-weight: 500;
-    /* 调整字体粗细 */
-    font-family: Arial, sans-serif;
-    /* 调整字体类型 */
-    color: rgb(102, 102, 102);
-    /* 调整字体颜色 */
+  font-size: 14px;
+  /* 调整字体大小 */
+  font-weight: 500;
+  /* 调整字体粗细 */
+  font-family: Arial, sans-serif;
+  /* 调整字体类型 */
+  color: rgb(102, 102, 102);
+  /* 调整字体颜色 */
 }
 
 /*左缩进20*/
 .margin-left-20 {
-margin-left: 20px;
+  margin-left: 20px;
 }
 
 /*左缩进50*/
 .margin-left-50 {
-    margin-left: 50px;
+  margin-left: 50px;
 }
 
 /*左缩进100*/
 .margin-left-100 {
-margin-left: 100px;
+  margin-left: 100px;
+}
+
+/*分页居中*/
+.pagination-wrapper {
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 (如果需要) */
+  padding: 10px; /* 可选，添加一些内边距 */
 }
