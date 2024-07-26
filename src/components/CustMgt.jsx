@@ -2,28 +2,41 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './CustMgt.css';
 
-const Kokyakukanri = () => {
-  const [employees, setEmployees] = useState([]);
+const Kokyakukanri = ({ employeeId =1002}) => {
+  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [paramName, setParamName] = useState('');
-  // const [paramBirthday, setParamBirthday] = useState('');
+  const [paramCustomerId, setParamCustomerId] = useState('');
+  const [paramCustomerName, setParamCustomerName] = useState('');
+  const [paramCustomerSerial, setParamCustomerSerial] = useState('');
+  const [paramCustomerDepName, setParamCustomerDepName] = useState('');
   const [businessError, setBusinessError] = useState('');
 
-  const fetchEmployees = async () => {
+  const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/react/WorkHourList', {
+      const response = await axios.get(`http://localhost:8080/CustMgt/searchCustomers/${employeeId}`, {
         params: {
-          // name: paramName,
-          // birthday: paramBirthday
+          customer_id: paramCustomerId,
+          customer_name: paramCustomerName,
+          customer_serial: paramCustomerSerial,
+          customer_dep_name: paramCustomerDepName,
+          // customer_tel: paramC,
+          // customer_dep_tel: paramC,
+          // customer_dep_addr: paramC,
+          // register_employee_id: paramRegEmpId,
+          // created_date: 
+          // last_modified_date:
         }
       });
 
+      // console.log(response.data); 
+
       if (response.data.error) {
         setBusinessError(response.data.error);
-        setEmployees([]);
+        setCustomers([]);
       } else {
-        setEmployees(response.data.results);
+        const customerData = response.data;
+        setCustomers(Array.isArray(customerData) ? customerData : [customerData]);
         setBusinessError('');
       }
 
@@ -35,7 +48,7 @@ const Kokyakukanri = () => {
   };
 
   useEffect(() => {
-    fetchEmployees();
+    fetchCustomers();
   }, []);
 
   if (loading) {
@@ -55,60 +68,53 @@ const Kokyakukanri = () => {
           <h4>検索条件</h4>
         </div>
         <div>
-          <div>
             <table>
-              <tr>
-                <td>顧客ID</td>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="顧客IDで検索"
-                    value={paramName}
-                    onChange={(e) => setParamName(e.target.value)}
-                  />
-                  </td>
-                <td>法人番号</td>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="法人番号で検索"
-                    value={paramName}
-                    onChange={(e) => setParamName(e.target.value)}
-                  />
-                  </td>
-              </tr>
-              <tr>
-                <td>会社名</td>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="会社名で検索"
-                    value={paramName}
-                    onChange={(e) => setParamName(e.target.value)}
-                  />
-                  </td>
-                <td>部門名</td>
-                <td>
-                  <input
-                    type="text"
-                    placeholder="部門名で検索"
-                    value={paramName}
-                    onChange={(e) => setParamName(e.target.value)}
-                  />
-                  </td>
-              </tr>
-
+              <tbody>
+                <tr>
+                  <td>顧客ID</td>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder="顧客IDで検索"
+                      value={paramCustomerId}
+                      onChange={(e) => setParamCustomerId(e.target.value)}
+                    />
+                    </td>
+                  <td>法人番号</td>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder="法人番号で検索"
+                      value={paramCustomerSerial}
+                      onChange={(e) => setParamCustomerSerial(e.target.value)}
+                    />
+                    </td>
+                </tr>
+                <tr>
+                  <td>会社名</td>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder="会社名で検索"
+                      value={paramCustomerName}
+                      onChange={(e) => setParamCustomerName(e.target.value)}
+                    />
+                    </td>
+                  <td>部門名</td>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder="部門名で検索"
+                      value={paramCustomerDepName}
+                      onChange={(e) => setParamCustomerDepName(e.target.value)}
+                    />
+                    </td>
+                </tr>
+              </tbody>
             </table>
-          </div>
-
-          {/* <input
-            type="date"
-            value={paramBirthday}
-            onChange={(e) => setParamBirthday(e.target.value)}
-          /> */}
           <div className='search-bar-button'>
-            <button id="btn" onClick={fetchEmployees}>リセット</button>
-            <button id="btn" onClick={fetchEmployees}>検索</button>
+            <button id="btn" onClick={fetchCustomers}>リセット</button>
+            <button id="btn" onClick={fetchCustomers}>検索</button>
           </div>
 
         </div>
@@ -128,21 +134,15 @@ const Kokyakukanri = () => {
               </tr>
             </thead>
             <tbody>
-              {/* {employees.map(employee => (
-                <tr key={employee.employeeId}>
-                  <td>{employee.employeeId}</td>
-                  <td>{employee.name}</td>
-                  <td>{employee.mail}</td>
-                  <td>{employee.birthday}</td>
+              {Array.isArray(customers) && customers.map(customer => (
+                <tr key={customer.customer_id}>
+                  <td>{customer.customer_id}</td>
+                  <td>{customer.customer_serial}</td>
+                  <td>{customer.customer_name}</td>
+                  <td>{customer.customer_dep_name}</td>
+                  <td><a href={`/react/CustMgtDetail/${customer.customer_id}`}>チェック</a></td>
                 </tr>
-              ))} */}
-              <tr>
-                <td>customer.customer_id</td>
-                <td>customer.customer_serial</td>
-                <td>customer.customer_name</td>
-                <td>customer.customer_dep_name</td>
-                <td><a href='/react/CustMgtDetail'>チェック</a></td>
-              </tr>
+              ))}
             </tbody>
           </table>
         </div>

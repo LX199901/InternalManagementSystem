@@ -33,6 +33,7 @@ body {
 .search-bar {
   margin-bottom: 20px;
   gap: 10px; /* 增加输入框和按钮之间的间距 */
+  display: block !important;   /* remove the style of MgtExpense.css:20 */
 }
 
 .manage-button {
