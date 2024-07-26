@@ -1,11 +1,3 @@
-/* 设置整体布局和字体 */
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f4f4f9;
-  margin: 0;
-  padding: 0;
-}
-
 /* 设置容器 */
 .kokyaku-kanri {
   max-width: 1200px;
@@ -119,6 +111,7 @@ body {
 .kokyaku-kanri table {
   width: 100%;
   border-collapse: collapse;
+  margin: auto;
 }
 
 .kokyaku-kanri th, td {
@@ -134,7 +127,11 @@ body {
 
 .kokyaku-info td:nth-child(odd) {
   width: 10%;
-  min-width: 105px;
+  min-width: 115px;
+}
+
+.kokyaku-info tr{
+  border: 10px solid transparent
 }
 
 .result-fields table tr td {
@@ -142,6 +139,11 @@ body {
 }
 
 .kokyaku-kanri tbody td:last-child {
+  min-width: 60px;
+  padding: 1%;
+}
+
+.kokyaku-kanri .result-fields tbody td:last-child {
   min-width: 60px;
   padding: 1%;
   text-align: center;

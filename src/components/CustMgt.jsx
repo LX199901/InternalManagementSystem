@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Table } from 'antd';
+
 import './CustMgt.css';
 
 const Kokyakukanri = ({ employeeId =1002}) => {
@@ -43,7 +45,7 @@ const Kokyakukanri = ({ employeeId =1002}) => {
 
       setLoading(false);
     } catch (err) {
-      if (err.response && err.response.status === 404) {
+      if (err.response.status === 404) {
         setCustomers([]);
         setBusinessError('検索に一致する顧客は見つかりませんでした。');
       } else {
@@ -61,7 +63,7 @@ const Kokyakukanri = ({ employeeId =1002}) => {
     setParamCustomerSerial('');
     setParamCustomerDepName('');
     setCustomers([]);
-    setBusinessError('');
+    setBusinessError('検索条件をご入力ください。');
   }
 
   useEffect(() => {
@@ -77,7 +79,7 @@ const Kokyakukanri = ({ employeeId =1002}) => {
   }
 
   return (
-    <div className="kokyaku-kanri">
+    <div className="kokyaku-kanri search-label">
       <h2>顧客管理</h2>
       <div className="search-bar">
         <div className="condition-and-createBtn">
@@ -136,7 +138,6 @@ const Kokyakukanri = ({ employeeId =1002}) => {
 
         </div>
       </div>
-      <br/>
       <div className="result-fields">
         <div><h4>検索結果</h4></div>
         {businessError ? (
@@ -146,7 +147,7 @@ const Kokyakukanri = ({ employeeId =1002}) => {
         ) : (
           <div>
           {customers.length > 0 ? (
-            <table>
+            <table  className='shain-ichiran' >
               <thead>
                 <tr>
                   <th>顧客ID</th>
@@ -173,6 +174,7 @@ const Kokyakukanri = ({ employeeId =1002}) => {
           )}
           </div>
         )}
+        {/* <Table dataSource={dataSource} columns={columns} />; */}
       </div>
     </div>
   );
