@@ -2,40 +2,86 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './CustMgt.css';
 
-const Kokyakukanri = () => {
-  const [contacts, setcontacts] = useState([]);
+const Kokyakukanri = ({customerId = 1}) => {
+  const [customers, setCustomers] = useState([]);
+  // const [contacts, setcontacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [paramName, setParamName] = useState('');
-  // const [paramBirthday, setParamBirthday] = useState('');
+  // const [paramCustomerId, setParamCustomerId] = useState('');
+  // const [paramCustomerName, setParamCustomerName] = useState('');
+  // const [paramCustomerSerial, setParamCustomerSerial] = useState('');
+  // const [paramCustomerDepName, setParamCustomerDepName] = useState('');
+  // const [paramCustomerTel, setParamCustomerTel] = useState('');
+  // const [paramCustomerDepTel, setParamCustomerDepTel] = useState('');
+  // const [paramCustomerDepAddr, setParamCustomerDepAddr] = useState('');
+  // const [paramRegEmpId, setParamRegEmpId] = useState(''); //register_employee_id
   const [businessError, setBusinessError] = useState('');
 
-  const fetchcontacts = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/react/WorkHourList', {
-        params: {
-          // name: paramName,
-          // birthday: paramBirthday
-        }
-      });
+  const buildUrlWithParams = () => {
+    const baseUrl = `http://localhost:8080/CustMgt/customers/${customerId}`;
+    return `${baseUrl}`;
+  };
 
-      if (response.data.error) {
-        setBusinessError(response.data.error);
-        setcontacts([]);
-      } else {
-        setcontacts(response.data.results);
+  // const fetchContacts = async () => {
+  //   try {
+  //     const response = await axios.get('http://localhost:8080/react/WorkHourList', {
+  //       params: {
+  //         // name: paramName,
+  //         // birthday: paramBirthday
+  //       }
+  //     });
+
+  //     if (response.data.error) {
+  //       setBusinessError(response.data.error);
+  //       setcontacts([]);
+  //     } else {
+  //       setcontacts(response.data.results);
+  //       setBusinessError('');
+  //     }
+
+  //     setLoading(false);
+  //   } catch (err) {
+  //     setError(err);
+  //     setLoading(false);
+  //   }
+  // };
+
+  const fetchCustomers = async () => {
+    try {
+      const url = buildUrlWithParams();
+      const response = await axios.get(url)
+      console.log(response.data); 
+
+      if (response.status === 200) {
+        const customerData = response.data;
+        setCustomers(Array.isArray(customerData) ? customerData : [customerData]);
         setBusinessError('');
+      } else {
+        setCustomers([]);
+        setBusinessError(response.data.error);
+        setError(new Error(`Unexpected status code: ${response.status}`));
       }
 
       setLoading(false);
     } catch (err) {
-      setError(err);
+      if (err.response && err.response.status === 404) {
+        setCustomers([]);
+        setBusinessError('検索に一致する顧客は見つかりませんでした。');
+      } else {
+        setError(err);
+      }
+    } finally {
       setLoading(false);
     }
   };
 
+  const fetchContacts = async () => {
+    setLoading(false);
+  }
+
   useEffect(() => {
-    fetchcontacts();
+    fetchCustomers();
+    fetchContacts();
   }, []);
 
   if (loading) {
@@ -57,95 +103,87 @@ const Kokyakukanri = () => {
         <div>
           <div className='kokyaku-info'>
             <table>
-              <tr>
-                <td>顧客ID</td>
-                <td>
-
-                </td>
-                <td>法人番号</td>
-                <td>
-
-                </td>
-              </tr>
-              <tr>
-                <td>会社名</td>
-                <td>
-
-                </td>
-                <td>会社電話</td>
-                <td>
-
-                </td>
-              </tr>
-              <tr>
-                <td>部門名</td>
-                <td>
-
-                </td>
-                <td>部門電話</td>
-                <td>
-
-                </td>
-              </tr>
-              <tr>
-                <td>部門所在地</td>
-                <td></td>
-              </tr>
+              {customers.map(customer => (
+              <tbody>
+                <tr >
+                  <td>顧客ID</td>
+                  <td>{customer.customer_id}</td>
+                  <td>法人番号</td>
+                  <td>{customer.customer_serial}</td>
+                </tr>
+                <tr>
+                  <td>会社名</td>
+                  <td>{customer.customer_name}</td>
+                  <td>会社電話</td>
+                  <td>{customer.customer_tel}</td>
+                </tr>
+                <tr>
+                  <td>部門名</td>
+                  <td>{customer.customer_dep_name}</td>
+                  <td>部門電話</td>
+                  <td>{customer.customer_dep_tel}</td>
+                </tr>
+                <tr>
+                  <td>部門所在地</td>
+                  <td colSpan={3}>{customer.customer_dep_addr}</td>
+                </tr>
+              </tbody>
+              ))}
             </table>
+            <br/>
           </div>
 
-          {/* <input
-            type="date"
-            value={paramBirthday}
-            onChange={(e) => setParamBirthday(e.target.value)}
-          /> */}
           <div className='manage-button'>
-              <button id="btn" onClick={fetchcontacts}>顧客変更</button>
+            <button id="btn" onClick={fetchContacts}>顧客変更</button>
           </div>
         </div>
       </div>
-      <br/>
+      <br />
       <div className="result-fields">
-        <div>
-          <table>
-            <thead>
-              <tr>
-                <th>責任者氏名</th>
-                <th>メール</th>
-                <th>連絡電話</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* {contacts.map(contact => (
-                <tr key={contact.contactId}>
-                  <td>{contact.name}</td>
-                  <td>{contact.mail}</td>
-                  <td>{contact.tel}</td>
-                  <td>
-                    <button id="btn" onClick={fetchcontacts}>変更</button>
-                  </td>
+        {customers.length > 0 ? (
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>責任者氏名</th>
+                  <th>メール</th>
+                  <th>連絡電話</th>
+                  <th>操作</th>
                 </tr>
-              ))} */}
-                  <tr >
+              </thead>
+              <tbody>
+                {/* {contacts.map(contact => (
+                  <tr key={contact.contactId}>
+                    <td>{contact.name}</td>
+                    <td>{contact.mail}</td>
+                    <td>{contact.tel}</td>
+                    <td>
+                      <button id="btn" onClick={fetchContacts}>変更</button>
+                    </td>
+                  </tr>
+                ))} */}
+                <tr >
                   <td>contact.name</td>
                   <td>contact.mail</td>
                   <td>contact.tel</td>
                   <td>
-                    <button class="control" id='contact-edit' onClick={fetchcontacts}>変更</button>
-                    <button class="control" id='contact-del' onClick={fetchcontacts}>削除</button>
+                    <button className="control" id='contact-edit' onClick={fetchContacts}>変更</button>
+                    <button className="control" id='contact-del' onClick={fetchContacts}>削除</button>
                   </td>
                 </tr>
-            </tbody>
-          </table>
-          <br/>
-          <div  class='manage-button'>
-            <button id="btn" onClick={fetchcontacts}>責任者追加</button>
+              </tbody>
+            </table>
+            <br />
+            <div className='manage-button'>
+              <button id="btn" onClick={fetchContacts}>責任者追加</button>
+            </div>
+            <div className='manage-button'>
+              <button id="previous" onClick={fetchContacts}>戻る</button>
+            </div>
           </div>
-          <div  class='manage-button'>
-            <button id="previous" onClick={fetchcontacts}>戻る</button>
-          </div>
-        </div>
+          ) : (
+            <div className='error-message-box'><p className="error-message">{businessError}</p></div>
+          )}
       </div>
     </div>
   );
