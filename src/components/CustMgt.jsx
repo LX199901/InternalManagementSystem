@@ -12,40 +12,57 @@ const Kokyakukanri = ({ employeeId =1002}) => {
   const [paramCustomerDepName, setParamCustomerDepName] = useState('');
   const [businessError, setBusinessError] = useState('');
 
+  const buildUrlWithParams = () => {
+    const baseUrl = `http://localhost:8080/CustMgt/searchCustomers/${employeeId}`;
+    const params = new URLSearchParams();
+    if (paramCustomerId) params.append('customerId', paramCustomerId);
+    if (paramCustomerName) params.append('customerName', paramCustomerName);
+    if (paramCustomerSerial) params.append('customerSerial', paramCustomerSerial);
+    if (paramCustomerDepName) params.append('customerDepName', paramCustomerDepName);
+    return `${baseUrl}?${params.toString()}`;
+  };
+
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/CustMgt/searchCustomers/${employeeId}`, {
-        params: {
-          customer_id: paramCustomerId,
-          customer_name: paramCustomerName,
-          customer_serial: paramCustomerSerial,
-          customer_dep_name: paramCustomerDepName,
-          // customer_tel: paramC,
-          // customer_dep_tel: paramC,
-          // customer_dep_addr: paramC,
-          // register_employee_id: paramRegEmpId,
-          // created_date: 
-          // last_modified_date:
-        }
-      });
-
+      const url = buildUrlWithParams();
+      const response = await axios.get(url)
       // console.log(response.data); 
 
-      if (response.data.error) {
-        setBusinessError(response.data.error);
-        setCustomers([]);
-      } else {
+      if (response.status === 200){
         const customerData = response.data;
         setCustomers(Array.isArray(customerData) ? customerData : [customerData]);
         setBusinessError('');
+      // } else if (response.status === 404) {
+      //   setCustomers([]);
+      //   setBusinessError('検索に一致する顧客は見つかりませんでした。');
+      } else {
+        setCustomers([]);
+        setBusinessError(response.data.error);
+        setError(new Error(`Unexpected status code: ${response.status}`));
       }
 
       setLoading(false);
     } catch (err) {
-      setError(err);
+      if (err.response && err.response.status === 404) {
+        setCustomers([]);
+        setBusinessError('検索に一致する顧客は見つかりませんでした。');
+      } else {
+        setError(err);
+      }
+    }finally {
       setLoading(false);
     }
   };
+
+  const onClickReset = () =>     {
+    console.log('onClickReset');
+    setParamCustomerId('');
+    setParamCustomerName('');
+    setParamCustomerSerial('');
+    setParamCustomerDepName('');
+    setCustomers([]);
+    setBusinessError('');
+  }
 
   useEffect(() => {
     fetchCustomers();
@@ -62,10 +79,10 @@ const Kokyakukanri = ({ employeeId =1002}) => {
   return (
     <div className="kokyaku-kanri">
       <h2>顧客管理</h2>
-      {businessError && <p className="error-message">{businessError}</p>}
       <div className="search-bar">
-        <div>
+        <div className="condition-and-createBtn">
           <h4>検索条件</h4>
+          <button onClick={fetchCustomers}>新規顧客</button>
         </div>
         <div>
             <table>
@@ -113,8 +130,8 @@ const Kokyakukanri = ({ employeeId =1002}) => {
               </tbody>
             </table>
           <div className='search-bar-button'>
-            <button id="btn" onClick={fetchCustomers}>リセット</button>
-            <button id="btn" onClick={fetchCustomers}>検索</button>
+            <button type="reset" onClick={onClickReset}>リセット</button>
+            <button onClick={fetchCustomers}>検索</button>
           </div>
 
         </div>
@@ -122,30 +139,40 @@ const Kokyakukanri = ({ employeeId =1002}) => {
       <br/>
       <div className="result-fields">
         <div><h4>検索結果</h4></div>
-        <div>
-          <table>
-            <thead>
-              <tr>
-                <th>顧客ID</th>
-                <th>法人番号</th>
-                <th>会社名</th>
-                <th>部門名</th>
-                <th>詳細情報</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(customers) && customers.map(customer => (
-                <tr key={customer.customer_id}>
-                  <td>{customer.customer_id}</td>
-                  <td>{customer.customer_serial}</td>
-                  <td>{customer.customer_name}</td>
-                  <td>{customer.customer_dep_name}</td>
-                  <td><a href={`/react/CustMgtDetail/${customer.customer_id}`}>チェック</a></td>
+        {businessError ? (
+          <div className="error-message-box">
+            <p className="error-message">{businessError}</p>
+          </div>
+        ) : (
+          <div>
+          {customers.length > 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>顧客ID</th>
+                  <th>法人番号</th>
+                  <th>会社名</th>
+                  <th>部門名</th>
+                  <th>詳細情報</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {Array.isArray(customers) && customers.map(customer => (
+                  <tr key={customer.customer_id}>
+                    <td>{customer.customer_id}</td>
+                    <td>{customer.customer_serial}</td>
+                    <td>{customer.customer_name}</td>
+                    <td>{customer.customer_dep_name}</td>
+                    <td><a href={`/react/CustMgtDetail/${customer.customer_id}`}>チェック</a></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className='error-message-box'><p className="error-message">{businessError}</p></div>
+          )}
+          </div>
+        )}
       </div>
     </div>
   );

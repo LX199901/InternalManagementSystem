@@ -33,7 +33,14 @@ body {
 .search-bar {
   margin-bottom: 20px;
   gap: 10px; /* 增加输入框和按钮之间的间距 */
-  display: block !important;   /* remove the style of MgtExpense.css:20 */
+  display: block;   /* remove the style of MgtExpense.css:20 */
+}
+
+.condition-and-createBtn {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-right: 10pt;
 }
 
 .manage-button {
@@ -180,8 +187,15 @@ body {
 }
 
 /* 错误消息样式 */
-.error-message {
-  color: red;
+.error-message-box {
+  padding: 1px;
   text-align: center;
-  margin-bottom: 20px;
+}
+
+.error-message {
+  color: inherit;
+  background-color: #ddd;
+  text-align: center;
+  margin: 0px 10px;
+  padding: 5px;
 }
