@@ -104,6 +104,17 @@
   width: 80%;
 }
 
+/* 表單样式 */
+.form-button {
+  margin: 5px;
+  min-width: 88px;
+}
+.form-desc {
+  background-color: #007bff;
+  color: white;
+  padding: 2px 8px;
+}
+
 
 /* 表格样式 */
 .kokyaku-kanri table {

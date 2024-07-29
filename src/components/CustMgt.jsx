@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Input, Tooltip } from 'antd';
-
+import { Input, Tooltip, Modal } from 'antd';
+import CustMgtForm from './CustMgtForm';
 import './CustMgt.css';
 
 const NumericInput = ({ value, onChange, placeholder, title, maxLength }) => {
@@ -32,6 +32,7 @@ const Kokyakukanri = ({ employeeId =1002}) => {
   const [paramCustomerSerial, setParamCustomerSerial] = useState('');
   const [paramCustomerDepName, setParamCustomerDepName] = useState('');
   const [businessError, setBusinessError] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const buildUrlWithParams = () => {
     const baseUrl = `http://localhost:8080/CustMgt/searchCustomers/${employeeId}`;
@@ -85,6 +86,26 @@ const Kokyakukanri = ({ employeeId =1002}) => {
     setBusinessError('検索条件をご入力ください。');
   }
 
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = async (values) => {
+    try {
+      const response = await axios.post('http://localhost:8080/CustMgt/customers', values);
+      if (response.status === 200) {
+        setIsModalVisible(false);
+        fetchCustomers();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   useEffect(() => {
     fetchCustomers();
   }, []);
@@ -103,7 +124,7 @@ const Kokyakukanri = ({ employeeId =1002}) => {
       <div className="search-bar">
         <div className="condition-and-createBtn">
           <h4>検索条件</h4>
-          <button onClick={fetchCustomers}>新規顧客</button>
+          <button onClick={showModal}>新規顧客</button>
         </div>
         <div>
             <table>
@@ -202,8 +223,10 @@ const Kokyakukanri = ({ employeeId =1002}) => {
           )}
           </div>
         )}
-        {/* <Table dataSource={dataSource} columns={columns} />; */}
       </div>
+      <Modal title="新規顧客" open={isModalVisible} onCancel={handleCancel} footer={null}>
+        <CustMgtForm onSubmit={handleOk} onCancel={handleCancel} />
+      </Modal>
     </div>
   );
 };
