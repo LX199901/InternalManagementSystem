@@ -42,9 +42,7 @@
 
 /* 搜索框样式 */
 .search-bar input[type="text"] {
-  padding: 10px;
   width: 100%;
-  border: 1px solid #ddd;
   border-radius: 4px;
 }
 
@@ -119,10 +117,19 @@
   text-align: left;
 }
 
+.kokyaku-kanri .search-bar td:nth-child(odd){
+  width: 10%;
+  min-width: 80px;
+}
+
+.kokyaku-kanri .search-bar td:nth-child(even){
+  width: 40%;
+}
+
 .kokyaku-kanri th {
-  background-color: #007bff; /* 表头背景颜色 */
+  background-color: #007bff; 
   border: 1px solid #ddd;
-  color: white; /* 表头文字颜色 */
+  color: white; 
 }
 
 .kokyaku-info td:nth-child(odd) {

@@ -1,8 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table } from 'antd';
+import { Input, Tooltip } from 'antd';
 
 import './CustMgt.css';
+
+const NumericInput = ({ value, onChange, placeholder, title, maxLength }) => {
+  // const { onChange } = props;
+  const handleChange = (e) => {
+    const { value: inputValue } = e.target;
+    const reg = /^\d*$/; // 修改為只允許輸入數字
+    if (reg.test(inputValue) || inputValue === '') {
+      onChange(inputValue);
+    }
+  };
+
+  return (
+    <Tooltip trigger={['focus']} placement="topLeft" overlayClassName="numeric-input">
+      <Input
+        {...{value, onChange:handleChange, placeholder, title, maxLength}}
+      />
+    </Tooltip>
+  );
+};
 
 const Kokyakukanri = ({ employeeId =1002}) => {
   const [customers, setCustomers] = useState([]);
@@ -92,27 +111,36 @@ const Kokyakukanri = ({ employeeId =1002}) => {
                 <tr>
                   <td>顧客ID</td>
                   <td>
-                    <input
-                      type="text"
+                    <NumericInput
                       placeholder="顧客IDで検索"
+                      title={'半角数字で入力してください'}
+                      maxLength={50}
                       value={paramCustomerId}
-                      onChange={(e) => setParamCustomerId(e.target.value)}
+                      onChange={(value) => setParamCustomerId(value)}
                     />
                     </td>
                   <td>法人番号</td>
                   <td>
-                    <input
+                    {/* <Input
                       type="text"
                       placeholder="法人番号で検索"
+                      showCount maxLength={13}
                       value={paramCustomerSerial}
                       onChange={(e) => setParamCustomerSerial(e.target.value)}
-                    />
-                    </td>
+                    /> */}
+                    <NumericInput
+                      placeholder="法人番号で検索"
+                      title={'法人番号は、株式会社などの法人等が持つ13桁の番号です。'}
+                      maxLength={13}
+                      value={paramCustomerSerial}
+                      onChange={(value) => setParamCustomerSerial(value)}
+                   />
+                  </td>
                 </tr>
                 <tr>
                   <td>会社名</td>
                   <td>
-                    <input
+                    <Input
                       type="text"
                       placeholder="会社名で検索"
                       value={paramCustomerName}
@@ -121,7 +149,7 @@ const Kokyakukanri = ({ employeeId =1002}) => {
                     </td>
                   <td>部門名</td>
                   <td>
-                    <input
+                    <Input
                       type="text"
                       placeholder="部門名で検索"
                       value={paramCustomerDepName}
