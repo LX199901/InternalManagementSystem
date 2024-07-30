@@ -108,12 +108,19 @@ table {
 .modal-content {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center items horizontally */
-  gap: 16px; /* Optional: Adjust gap between items */
+  align-items: center;
+  gap: 16px;
 }
 
 .modal-item {
   display: flex;
-  align-items: center; /* Center items vertically */
-  gap: 8px; /* Optional: Adjust gap between label and input */
+  align-items: center;
+  gap: 8px;
+}
+
+/* 居右按钮 */
+.button-container {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
 }

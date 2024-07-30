@@ -6,7 +6,8 @@ import { formatCurrency } from "../utils/utils";
 import "./SalaryMgt.css";
 
 const ShainIchiran = () => {
-  const [employees, setEmployees] = useState([]);
+  const [salaryData, setSalaryData] = useState([]);
+  const [calSalaryData, setCalSalaryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [paramName, setParamName] = useState("");
@@ -20,31 +21,81 @@ const ShainIchiran = () => {
   const [loginUser, setLoginUser] = useState("");
   const [deductionModel, setDeductionModel] = useState(false);
   // const [confirmLoading, setConfirmLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(3);
   const [tabKey, setTabKey] = useState("2");
+  const [salaryTotal, setSalaryTotal] = useState("2");
+  const [resetFlag, setResetFlag] = useState(false);
+  const [shouldResetPage, setShouldResetPage] = useState(false); // 是否重置页码
+
+  const getParams = () => {
+    return {
+      param_name: paramName,
+      salary_date: paramSalaryDate,
+      department_id: paramDepartment,
+      position_id: paramPosition,
+      param_id: paramID,
+      page: page,
+      page_size: pageSize,
+      tab_key: tabKey,
+    };
+  };
 
   const fetchSalary = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:8080/react/salary/select",
-        {
-          param_name: paramName,
-          salary_date: paramSalaryDate,
-          department_id: paramDepartment,
-          position_id: paramPosition,
-          param_id: paramID,
-          pege_size: pageSize,
-          tab_key: tabKey,
-        }
+        "http://localhost:8080/react/salary/getSalaryRecord",
+        getParams()
       );
 
       if (response.data.error) {
         setBusinessError(response.data.error);
-        setEmployees([]);
+        setSalaryData([]);
       } else {
-        setEmployees(response.data.results);
+        setSalaryData(response.data.results);
         setBusinessError("");
         setCheckedList(new Array(response.data.results.length).fill(false));
+      }
+
+      setLoading(false);
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+    }
+  };
+
+  const fetchTotal = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/react/salary/getSalaryTotal",
+        getParams()
+      );
+
+      if (response.data.error) {
+        setBusinessError(response.data.error);
+      } else {
+        setSalaryTotal(response.data.data);
+        setBusinessError("");
+      }
+
+      setLoading(false);
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+    }
+  };
+
+  const calculateSalary = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/react/salary/calculateSalary",
+        getParams()
+      );
+
+      if (response.data.error) {
+        setBusinessError(response.data.error);
+      } else {
+        setBusinessError("");
       }
 
       setLoading(false);
@@ -81,14 +132,19 @@ const ShainIchiran = () => {
       ? JSON.parse(localStorage.getItem("user"))
       : {};
     setLoginUser(user);
+    fetchTotal();
     fetchSalary();
-  }, [pageSize, tabKey]);
+  }, [page, pageSize, tabKey, resetFlag]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [shouldResetPage]);
 
   const handleAllChecked = (e) => {
     const checked = e.target.checked;
     setAllChecked(checked);
-    setCheckedList(new Array(employees.length).fill(checked));
-    console.log(employees, "data");
+    setCheckedList(new Array(salaryData.length).fill(checked));
+    console.log(salaryData, "data");
   };
 
   const handleChecked = (index, id) => {
@@ -100,12 +156,13 @@ const ShainIchiran = () => {
     const allChecked = newCheckedList.every((item) => item);
     setAllChecked(allChecked);
   };
-
-  //pageSize 变化的回调
-  const pageSizeChange = (current, size) => {
-    console.log("pageSize", current, size);
-    setPageSize(size);
+  //page 变化的回调
+  const pageChange = (page, pageSize) => {
+    console.log("pageSize", page, pageSize);
+    setPage(page);
+    setPageSize(pageSize);
   };
+
   //tab 被点击的回调
   const tabClick = (key, event) => {
     console.log("tabClick", key, event);
@@ -129,11 +186,17 @@ const ShainIchiran = () => {
     setParamPosition("");
     setParamName("");
     setParamID("");
+    setResetFlag((prevFlag) => !prevFlag);
+  };
+
+  const resetToFirstPage = () => {
+    setShouldResetPage((prevFlag) => !prevFlag); // 设置重置页码标识
   };
 
   const items = [];
 
   // 根据 loginUser 的值设置 items
+  // 这里面的salaryData和标签变量要替换
   if (loginUser === "admin") {
     items.push({
       key: "1",
@@ -163,20 +226,20 @@ const ShainIchiran = () => {
               </tr>
             </thead>
             <tbody>
-              {employees.map((employee, index) => (
-                <React.Fragment key={employee.employeeId}>
+              {salaryData.map((employee, index) => (
+                <React.Fragment key={employee.salary_id}>
                   <tr>
                     <td className="force-center">
                       <Checkbox
                         className="custom-checkbox"
                         onChange={() =>
-                          handleChecked(index, employee.employeeId)
+                          handleChecked(index, employee.salary_id)
                         }
                         checked={checkedList[index]}
                       ></Checkbox>
                     </td>
                     <td className="force-center font-weight">
-                      {employee.employeeId}
+                      {employee.employee_id}
                     </td>
                     <td className="force-center font-weight">
                       {employee.name}
@@ -357,6 +420,9 @@ const ShainIchiran = () => {
               ))}
             </tbody>
           </table>
+          <div className="button-container">
+            <button className="search-button">作成処理</button>
+          </div>
         </>
       ),
     });
@@ -386,20 +452,18 @@ const ShainIchiran = () => {
           </tr>
         </thead>
         <tbody>
-          {employees.map((employee, index) => (
-            <React.Fragment key={employee.employeeId}>
+          {salaryData.map((data, index) => (
+            <React.Fragment key={data.salary_id}>
               <tr>
-                <td className="force-center font-weight">
-                  {employee.employeeId}
-                </td>
-                <td className="force-center font-weight">{employee.name}</td>
+                <td className="force-center font-weight">{data.employee_id}</td>
+                <td className="force-center font-weight">{data.name}</td>
                 <td colSpan="3">
                   <Row>
                     <Col span={15} className="col-title">
                       出勤日数:
                     </Col>
                     <Col span={9} className="col-data">
-                      {20}
+                      {data.attendance_days}
                     </Col>
                   </Row>
                 </td>
@@ -409,7 +473,7 @@ const ShainIchiran = () => {
                       基本給料:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency(500000)}
+                      {formatCurrency(data.basic_salary)}
                     </Col>
                   </Row>
                 </td>
@@ -419,7 +483,7 @@ const ShainIchiran = () => {
                       健康保険料:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency(24900)}
+                      {formatCurrency(data.health_insurance_premium)}
                     </Col>
                   </Row>
                 </td>
@@ -433,7 +497,7 @@ const ShainIchiran = () => {
                       勤務時間:
                     </Col>
                     <Col span={9} className="col-data">
-                      {"168:00:00"}
+                      {data.working_hours}
                     </Col>
                   </Row>
                 </td>
@@ -443,7 +507,7 @@ const ShainIchiran = () => {
                       残業手当:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency()}
+                      {formatCurrency(data.overtime_allowance)}
                     </Col>
                   </Row>
                 </td>
@@ -453,7 +517,7 @@ const ShainIchiran = () => {
                       厚生年金保険料:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency(44570)}
+                      {formatCurrency(data.pension_insurance_premium)}
                     </Col>
                   </Row>
                 </td>
@@ -467,7 +531,7 @@ const ShainIchiran = () => {
                       住宅手当:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency()}
+                      {formatCurrency(data.residential_allowance)}
                     </Col>
                   </Row>
                 </td>
@@ -477,7 +541,7 @@ const ShainIchiran = () => {
                       雇用保険料:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency(2040)}
+                      {formatCurrency(data.employment_insurance_premium)}
                     </Col>
                   </Row>
                 </td>
@@ -491,7 +555,7 @@ const ShainIchiran = () => {
                       通勤手当:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency(10000)}
+                      {formatCurrency(data.transportation_allowance)}
                     </Col>
                   </Row>
                 </td>
@@ -501,7 +565,11 @@ const ShainIchiran = () => {
                       社会保険料合計:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency(71510)}
+                      {formatCurrency(
+                        data.employment_insurance_premium +
+                          data.pension_insurance_premium +
+                          data.health_insurance_premium
+                      )}
                     </Col>
                   </Row>
                 </td>
@@ -515,7 +583,7 @@ const ShainIchiran = () => {
                       その他手当:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency()}
+                      {formatCurrency(data.other_allowance)}
                     </Col>
                   </Row>
                 </td>
@@ -525,7 +593,7 @@ const ShainIchiran = () => {
                       源泉所得税:
                     </Col>
                     <Col span={9} className="col-data">
-                      {formatCurrency(19690)}
+                      {formatCurrency(data.withholding_tax)}
                     </Col>
                   </Row>
                 </td>
@@ -539,7 +607,7 @@ const ShainIchiran = () => {
                       支払総額:
                     </Col>
                     <Col span={9} className="col-data font-weight">
-                      {formatCurrency(510000)}
+                      {formatCurrency(data.payment)}
                     </Col>
                   </Row>
                 </td>
@@ -549,7 +617,7 @@ const ShainIchiran = () => {
                       控除額合計:
                     </Col>
                     <Col span={9} className="col-data font-weight">
-                      {formatCurrency(91200)}
+                      {formatCurrency(data.deduction)}
                     </Col>
                   </Row>
                 </td>
@@ -559,7 +627,7 @@ const ShainIchiran = () => {
                       差引支払額:
                     </Col>
                     <Col span={9} className="col-data font-weight">
-                      {formatCurrency(418800)}
+                      {formatCurrency(data.total_salary)}
                     </Col>
                   </Row>
                 </td>
@@ -626,7 +694,10 @@ const ShainIchiran = () => {
             </select>
             {loginUser && loginUser === "admin" && (
               <>
-                <button className="search-button margin-left-20">
+                <button
+                  className="search-button margin-left-20"
+                  onClick={calculateSalary}
+                >
                   給料計算
                 </button>
                 <button className="search-button" onClick={showModal}>
@@ -712,10 +783,23 @@ const ShainIchiran = () => {
                 console.log("社員ID", e.target.value);
               }}
             />
-            <button className="search-button margin-left-85" onClick={reset}>
+            <button
+              className="search-button margin-left-85"
+              onClick={() => {
+                resetToFirstPage();
+                reset();
+              }}
+            >
               クリア
             </button>
-            <button className="search-button" onClick={fetchSalary}>
+            <button
+              className="search-button"
+              onClick={() => {
+                resetToFirstPage();
+                fetchTotal();
+                fetchSalary();
+              }}
+            >
               再検索
             </button>
           </div>
@@ -726,13 +810,14 @@ const ShainIchiran = () => {
         <Tabs items={items} onTabClick={tabClick} />
       </div>
       <Pagination
-        total={employees.length}
+        total={salaryTotal}
         className="pagination-wrapper"
         showSizeChanger
         showQuickJumper
         showTotal={(total) => `合計件数 ( ${total} )`}
         pageSizeOptions={[3, 5, 10]}
-        onShowSizeChange={pageSizeChange}
+        defaultPageSize={3}
+        onChange={pageChange}
         locale={{
           items_per_page: "/頁",
           jump_to: "",
