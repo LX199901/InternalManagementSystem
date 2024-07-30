@@ -25,6 +25,8 @@ const CustMgtForm = ({ onSubmit, onCancel }) => {
 
   const onFinish = (values) => {
     onSubmit(values);
+    form.resetFields();
+    onCancel();
   };
 
   const onReset = () => {
@@ -104,10 +106,18 @@ const CustMgtForm = ({ onSubmit, onCancel }) => {
             <Input />
         </Form.Item>
         <Form.Item {...tailLayout}>
-            <Button className='form-button' htmlType="button" onClick={onReset}>
+            <Button 
+                className='form-button' 
+                htmlType="button" 
+                onClick={onReset}
+            >
                 リセット
             </Button>
-            <Button className='form-button' type="primary" htmlType="submit">
+            <Button 
+                className='form-button' 
+                type="primary" 
+                htmlType="submit" 
+            >
                 提出
             </Button>
         </Form.Item>
