@@ -32,7 +32,7 @@ const KokyakukanriDetail  = () => {
 
   const handleOk = async (values) => {
     try {
-      const response = await axios.post('http://localhost:8080/CustMgt/customers', values);
+      const response = await axios.post('http://localhost:8080/CustMgt/contacts', values);
       if (response.status === 200) {
         setIsModalVisible(false);
         // fetchCustomers();
