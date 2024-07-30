@@ -225,7 +225,7 @@ const Kokyakukanri = ({ employeeId =1002}) => {
         )}
       </div>
       <Modal title="新規顧客" open={isModalVisible} onCancel={handleCancel} footer={null}>
-        <CustMgtForm onSubmit={handleOk} onCancel={handleCancel} />
+        <CustMgtForm onSubmit={handleOk} onCancel={handleCancel} employeeId = {employeeId}/>
       </Modal>
     </div>
   );

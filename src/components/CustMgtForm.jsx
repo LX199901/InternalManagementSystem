@@ -10,7 +10,7 @@ const layout = {
   wrapperCol: {
     offset: 0.5,
     span: 18,
-    offset: 0.5,
+    // offset: 0.5,
   },
 };
 const tailLayout = {
@@ -20,11 +20,17 @@ const tailLayout = {
   },
 };
 
-const CustMgtForm = ({ onSubmit, onCancel }) => {
+const CustMgtForm = ({ onSubmit, onCancel ,employeeId}) => {
   const [form] = Form.useForm();
+  
 
   const onFinish = (values) => {
-    onSubmit(values);
+    const formData = {
+        ...values,
+        register_employee_id: employeeId,
+      };
+
+    onSubmit(formData);
     form.resetFields();
     onCancel();
   };
