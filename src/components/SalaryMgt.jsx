@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Tabs, Checkbox } from "antd";
-import { Col, Row } from "antd";
-import { Pagination } from "antd";
+import { Tabs, Checkbox, Col, Row, Pagination, Modal } from "antd";
 
 import { formatCurrency } from "../utils/utils";
 import "./SalaryMgt.css";
@@ -20,16 +18,23 @@ const ShainIchiran = () => {
   const [checkedList, setCheckedList] = useState([]);
   const [allChecked, setAllChecked] = useState(false);
   const [loginUser, setLoginUser] = useState("");
+  const [deductionModel, setDeductionModel] = useState(false);
+  // const [confirmLoading, setConfirmLoading] = useState(false);
+  const [pageSize, setPageSize] = useState(3);
+  const [tabKey, setTabKey] = useState("2");
 
-  const fetchEmployees = async () => {
+  const fetchSalary = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8080/react/EmployeeList",
+      const response = await axios.post(
+        "http://localhost:8080/react/salary/select",
         {
-          params: {
-            name: paramName,
-            birthday: paramSalaryDate,
-          },
+          param_name: paramName,
+          salary_date: paramSalaryDate,
+          department_id: paramDepartment,
+          position_id: paramPosition,
+          param_id: paramID,
+          pege_size: pageSize,
+          tab_key: tabKey,
         }
       );
 
@@ -49,13 +54,35 @@ const ShainIchiran = () => {
     }
   };
 
+  // // 仅在组件初始化时设置 tabKey
+  // useEffect(() => {
+  //   const initializeData = async () => {
+  //     const user = localStorage.getItem("user")
+  //       ? JSON.parse(localStorage.getItem("user"))
+  //       : {};
+  //     setLoginUser(user);
+
+  //     // 根据用户类型设置 tabKey 的默认值
+  //     if (user === "admin") {
+  //       setTabKey("1");
+  //     } else {
+  //       setTabKey("2");
+  //     }
+
+  //     // 发请求以获取数据
+  //     await fetchSalary();
+  //   };
+
+  //   initializeData();
+  // }, []); // 空依赖数组，确保只在组件首次渲染时运行
+
   useEffect(() => {
-    fetchEmployees();
-    let user = localStorage.getItem("user")
+    const user = localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user"))
       : {};
     setLoginUser(user);
-  }, []);
+    fetchSalary();
+  }, [pageSize, tabKey]);
 
   const handleAllChecked = (e) => {
     const checked = e.target.checked;
@@ -72,6 +99,27 @@ const ShainIchiran = () => {
 
     const allChecked = newCheckedList.every((item) => item);
     setAllChecked(allChecked);
+  };
+
+  //pageSize 变化的回调
+  const pageSizeChange = (current, size) => {
+    console.log("pageSize", current, size);
+    setPageSize(size);
+  };
+  //tab 被点击的回调
+  const tabClick = (key, event) => {
+    console.log("tabClick", key, event);
+    setTabKey(key);
+  };
+
+  //控除設定ポップアップ
+  const showModal = () => {
+    setDeductionModel(true);
+  };
+
+  const handleCancel = () => {
+    console.log("Clicked cancel button");
+    setDeductionModel(false);
   };
 
   //クリア
@@ -540,7 +588,7 @@ const ShainIchiran = () => {
         <div className="search-group">
           <div className="input-group">
             <input
-              type="date"
+              type="month"
               className="search-date"
               value={paramSalaryDate}
               onChange={(e) => {
@@ -581,7 +629,65 @@ const ShainIchiran = () => {
                 <button className="search-button margin-left-20">
                   給料計算
                 </button>
-                <button className="search-button">控除設定</button>
+                <button className="search-button" onClick={showModal}>
+                  控除設定
+                </button>
+                <Modal
+                  title="控除設定"
+                  open={deductionModel}
+                  onCancel={handleCancel}
+                >
+                  <div className="modal-content">
+                    <div className="modal-item">
+                      <span className="search-label">健康保険料率:</span>
+                      <input
+                        type="text"
+                        className="search-input"
+                        value={paramName}
+                        onChange={(e) => {
+                          setParamName(e.target.value);
+                          console.log("健康保険料率", e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div className="modal-item">
+                      <span className="search-label">厚生年金保険料率:</span>
+                      <input
+                        type="text"
+                        className="search-input"
+                        value={paramName}
+                        onChange={(e) => {
+                          setParamName(e.target.value);
+                          console.log("厚生年金保険料率", e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div className="modal-item">
+                      <span className="search-label">雇用保険料率:</span>
+                      <input
+                        type="text"
+                        className="search-input"
+                        value={paramName}
+                        onChange={(e) => {
+                          setParamName(e.target.value);
+                          console.log("雇用保険料率", e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div className="modal-item">
+                      <span className="search-label">源泉所得税率:</span>
+                      <input
+                        type="text"
+                        className="search-input"
+                        value={paramName}
+                        onChange={(e) => {
+                          setParamName(e.target.value);
+                          console.log("源泉所得税率", e.target.value);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </Modal>
               </>
             )}
           </div>
@@ -609,7 +715,7 @@ const ShainIchiran = () => {
             <button className="search-button margin-left-85" onClick={reset}>
               クリア
             </button>
-            <button className="search-button" onClick={fetchEmployees}>
+            <button className="search-button" onClick={fetchSalary}>
               再検索
             </button>
           </div>
@@ -617,7 +723,7 @@ const ShainIchiran = () => {
       </div>
 
       <div>
-        <Tabs defaultActiveKey="1" items={items} />
+        <Tabs items={items} onTabClick={tabClick} />
       </div>
       <Pagination
         total={employees.length}
@@ -626,6 +732,7 @@ const ShainIchiran = () => {
         showQuickJumper
         showTotal={(total) => `合計件数 ( ${total} )`}
         pageSizeOptions={[3, 5, 10]}
+        onShowSizeChange={pageSizeChange}
         locale={{
           items_per_page: "/頁",
           jump_to: "",

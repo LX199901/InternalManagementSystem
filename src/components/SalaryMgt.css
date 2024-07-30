@@ -100,3 +100,20 @@ table {
   height: 0px; /* 设置复选框的高度 */
   line-height: 6px; /* 设置行高，使文字和复选框垂直居中 */
 }
+
+.text-right {
+  text-align: right;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  gap: 16px; /* Optional: Adjust gap between items */
+}
+
+.modal-item {
+  display: flex;
+  align-items: center; /* Center items vertically */
+  gap: 8px; /* Optional: Adjust gap between label and input */
+}
