@@ -32,7 +32,8 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding-right: 10pt;
+  padding-right: 10px;
+  max-height: 50px;
 }
 
 .manage-button {
@@ -49,7 +50,7 @@
 .search-bar-button {
   display: flex;
   justify-content: flex-end;
-  padding-right: 10pt;
+  padding-right: 10px;
 }
 
 /* 按钮样式 */
@@ -130,7 +131,7 @@
 
 .kokyaku-kanri .search-bar td:nth-child(odd){
   width: 10%;
-  min-width: 80px;
+  min-width: 115px;
 }
 
 .kokyaku-kanri .search-bar td:nth-child(even){
