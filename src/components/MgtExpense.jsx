@@ -5,30 +5,52 @@ import './MgtExpense.css';
 import '../assets/css/global.css';
 import { Pagination } from 'antd';
 
-const showTotal = (total) => ` 合計件数 ${total}`;
 
 const ExpenseList = () => {
-  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [paramName, setParamName] = useState('');
   const [paramFirstDay, setParamFirstDay] = useState('');
   const [paramLastDay, setParamLastDay] = useState('');
+  const [init, setInit] = useState('');
+  const [departmentList, setDepartmentList] = useState('');
   const [paramDepartment, setParamDepartment] = useState('');
+  const [positionList, setPositionList] = useState('');
   const [paramPosition, setParamPosition] = useState('');
+  const [statusList, setStatusList] = useState('');
+  const [paramState, setParamState] = useState('');
   const [businessError, setBusinessError] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const navigate = useNavigate();
 
+
+  const showTotal = (total) => ` 合計件数 ${total}`;
+
+  //排序键 -- 因为对象的键在JavaScript是无序的，所以使用Object.entries()遍历对象时
+  //键的顺序不一定是按照插入的顺序来排列
+  const sortedStatusKeys = Object.keys(statusList).sort();
+
+  //checkbox全选
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      const allRowIds = employees.map((item) => item.employeeId);
+      const allRowIds = expenses.map((item) => item.employee_id);
       setSelectedRows(allRowIds);
     } else {
       setSelectedRows([]);
     }
   };
+
+  //checkbox单选
+  const handleSelectRow = (event, id) => {
+    if (event.target.checked) {
+      setSelectedRows([...selectedRows, id]);
+    } else {
+      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
+    }
+  };
+
+
 
   const fetchExpense = async () => {
     try {
@@ -57,6 +79,78 @@ const ExpenseList = () => {
     }
   };
 
+  const getInit = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/MgtExpense/init",
+        {
+          params: {
+          },
+        }
+      );
+
+      if (response.data.error) {
+        console.log("error");
+        setBusinessError(response.data.error);
+        setInit([]);
+      } else {
+        console.log(response.data);
+        // setInit(response.data);
+        setPositionList(response.data[0]);
+        setDepartmentList(response.data[1]);
+        console.log(JSON.stringify(response.data[2],"状态")  );
+        setStatusList(response.data[2]);
+      }
+    } catch (err) {
+      setError(err);
+    }
+  };
+
+  const getPositions = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/MgtExpense/getPositions",
+        {
+          params: {
+          },
+        }
+      );
+
+      if (response.data.error) {
+        console.log("error");
+        setBusinessError(response.data.error);
+        setPositionList([]);
+      } else {
+        console.log(response.data);
+        setPositionList(response.data);
+      }
+    } catch (err) {
+      setError(err);
+    }
+  };
+
+  const getDepartments = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/MgtExpense/getDepartments",
+        {
+          params: {
+          },
+        }
+      );
+
+      if (response.data.error) {
+        console.log("error");
+        setBusinessError(response.data.error);
+        setDepartmentList([]);
+      } else {
+        console.log(response.data);
+        setDepartmentList(response.data);
+      }
+    } catch (err) {
+      setError(err);
+    }
+  };
 
 
   const gotoRqt = () => {
@@ -65,42 +159,15 @@ const ExpenseList = () => {
 
   };
 
-  const handleSelectRow = (event, id) => {
-    if (event.target.checked) {
-      setSelectedRows([...selectedRows, id]);
-    } else {
-      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
-    }
-  };
-
-  const fetchEmployees = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/react/EmployeeList', {
-        params: {
-          name: paramName,
-          FirstDay: paramFirstDay,
-          LastDay: paramLastDay
-        }
-      });
-
-      if (response.data.error) {
-        setBusinessError(response.data.error);
-        setEmployees([]);
-      } else {
-        setEmployees(response.data.results);
-        setBusinessError('');
-      }
-
-      setLoading(false);
-    } catch (err) {
-      setError(err);
-      setLoading(false);
-    }
+  const approvalAll = () => {
+    console.log("approvalAll");
   };
 
   useEffect(() => {
-    fetchEmployees();
     fetchExpense();
+    // getDepartments();
+    // getPositions();
+    getInit();
   }, []);
 
   if (loading) {
@@ -140,9 +207,11 @@ const ExpenseList = () => {
             onChange={(e) => setParamPosition(e.target.value)}
           >
             <option value=""></option>
-            <option value="1">部門1</option>
-            <option value="2">部門2</option>
-            <option value="3">部門3</option>
+            {Object.entries(positionList).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
 
           <span className='search-label'>職務:</span>
@@ -151,22 +220,25 @@ const ExpenseList = () => {
             onChange={(e) => setParamDepartment(e.target.value)}
           >
             <option value=""></option>
-            <option value="1">職務1</option>
-            <option value="2">職務2</option>
-            <option value="3">職務3</option>
+            {Object.entries(departmentList).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
 
           <span className='search-label'>処理状態:</span>
           <select className='search-select'
-            value={paramDepartment}
-            onChange={(e) => setParamDepartment(e.target.value)}
+            value={paramState}
+            onChange={(e) => setParamState(e.target.value)}
           >
             <option value=""></option>
-            <option value="1">承認まち</option>
-            <option value="2">承認済み</option>
-            <option value="3">承認不可</option>
-            <option value="3">清算中</option>
-            <option value="3">清算済み</option>
+            {sortedStatusKeys.map(key => (
+              <option key={key} value={key}>
+                {statusList[key]}
+              </option>
+            ))}
+
           </select>
         </div>
       </div>
@@ -188,9 +260,9 @@ const ExpenseList = () => {
         </div>
       </div>
       <div className="search-bar">
-        <button id="btn" onClick={fetchEmployees}>検索</button>
+        <button id="btn" onClick={fetchExpense}>検索</button>
         <button id="btn" className='margin-left-50' onClick={gotoRqt}>申請</button>
-        <button id="btn" className='margin-left-50' onClick={fetchEmployees}>一括承認</button>
+        <button id="btn" className='margin-left-50' onClick={approvalAll}>一括承認</button>
       </div>
 
       <div className='margin-bottom-20'>
@@ -200,7 +272,7 @@ const ExpenseList = () => {
               <th>
                 <input type="checkbox"
                   onChange={handleSelectAll}
-                  checked={selectedRows.length === employees.length}
+                  checked={selectedRows.length === expenses.length}
                 />
               </th>
               <th>会社名</th>
