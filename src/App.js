@@ -53,7 +53,7 @@ function App() {
           <Route path="/react/RqtExpense" element={<RqtExpense />} />
           <Route path="/react/SalaryMgt" element={<SalaryMgt />} />
           <Route path="/react/CustMgt" element={<CustMgt />} />
-          <Route path="/react/CustMgtDetail" element={<CustMgtDetail />} />
+          <Route path="/react/CustMgtDetail/:customerId" element={<CustMgtDetail />} />
           <Route path="/react/CustBankMgt" element={<CustBankMgt />} />
           <Route path="/react/CustBankMgtDetail" element={<CustBankMgtDetail />} />
         </Route>
