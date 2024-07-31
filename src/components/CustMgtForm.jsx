@@ -77,9 +77,9 @@ const CustMgtForm = ({ onSubmit, onCancel ,employeeId}) => {
         >
             <Input type="tel"
                 placeholder="半角数字で入力してください"
-                pattern="\d{11}"
-                title="正しい電話番号をご入力ください。（123 1234 1234）"
-                maxLength={11}
+                pattern="\d{10}"
+                title="正しい電話番号をご入力ください。（123 123 1234）"
+                maxLength={10}
             />
         </Form.Item>
         
@@ -98,9 +98,9 @@ const CustMgtForm = ({ onSubmit, onCancel ,employeeId}) => {
         >
             <Input type="tel"
                 placeholder="半角数字で入力してください"
-                pattern="\d{11}"
-                title="正しい電話番号をご入力ください。（123 1234 1234）"
-                maxLength={11}
+                pattern="\d{10}"
+                title="正しい電話番号をご入力ください。（123 123 1234）"
+                maxLength={10}
             />
         </Form.Item>
 

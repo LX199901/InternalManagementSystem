@@ -159,7 +159,7 @@
 
 .kokyaku-kanri tbody td:last-child {
   min-width: 60px;
-  padding: 1%;
+  padding: 12px;
 }
 
 .kokyaku-kanri .result-fields tbody td:last-child {

@@ -12,33 +12,31 @@ const KokyakukanriDetail  = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // const [paramCustomerId, setParamCustomerId] = useState('');
-  // const [paramCustomerName, setParamCustomerName] = useState('');
-  // const [paramCustomerSerial, setParamCustomerSerial] = useState('');
-  // const [paramCustomerDepName, setParamCustomerDepName] = useState('');
-  // const [paramCustomerTel, setParamCustomerTel] = useState('');
-  // const [paramCustomerDepTel, setParamCustomerDepTel] = useState('');
-  // const [paramCustomerDepAddr, setParamCustomerDepAddr] = useState('');
-  // const [paramRegEmpId, setParamRegEmpId] = useState(''); //register_employee_id
   const [businessError, setBusinessError] = useState('');
   const [contactError, setContactError] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
 
-  
+  useEffect(() => {
+    fetchCustomerDetail ();
+    fetchContacts();
+  }, [customerId]);
+
   const showModal = () => {
     setIsModalVisible(true);
   };
 
-  const handleOk = async (values) => {
+  const handlenSubmit = async (values) => {
     try {
       const response = await axios.post('http://localhost:8080/CustMgt/contacts', values);
-      if (response.status === 200) {
-        setIsModalVisible(false);
-        // fetchCustomers();
+      if (response.status === 201 || response.status === 200) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        fetchContacts(); 
       }
     } catch (err) {
       console.error(err);
+    } finally{
+      setIsModalVisible(false);
     }
   };
 
@@ -46,72 +44,67 @@ const KokyakukanriDetail  = () => {
     setIsModalVisible(false);
   };
   
-  useEffect(() => {
 
-    const fetchCustomerDetail  = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/CustMgt/customers/${customerId}`)
-        console.log(response.data); 
 
-        if (response.status === 200) {
-          setCustomerDetail(response.data);
-          setBusinessError('');
-        } else {
-          setCustomerDetail(null);
-          setBusinessError(response.data.error);
-          setError(new Error(`Unexpected status code: ${response.status}`));
-        }
+  const fetchCustomerDetail  = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/CustMgt/customers/${customerId}`)
+      console.log(response.data); 
 
-        setLoading(false);
-      } catch (err) {
-        if (err.response && err.response.status === 404) {
-          setCustomerDetail(null);
-          console.log('顧客が存在しないようです。');
-          navigate('/react/CustMgt'); 
-        } else {
-          setError(err);
-        }
-      } finally {
-        setLoading(false);
+      if (response.status === 200) {
+        setCustomerDetail(response.data);
+        setBusinessError('');
+      } else {
+        setCustomerDetail(null);
+        setBusinessError(response.data.error);
+        setError(new Error(`Unexpected status code: ${response.status}`));
       }
-    };
 
-    const fetchContacts = async () => {
-      try {
-        const responseContacts = await axios.get(`http://localhost:8080/CustMgt/contacts/${customerId}`)
-        console.log(responseContacts.data); 
-
-        if (responseContacts.status === 200) {
-          const contactsData = responseContacts.data;
-          setContacts(Array.isArray(contactsData) ? contactsData : [contactsData]);
-          setContactError('');
-          console.log(`(200)contactError = ${contactError}`)
-        } else {
-          setContacts([]);
-          // setBusinessError(responseContacts.data.error);
-          setContactError('責任者が存在しないようです。');
-          setError(new Error(`Unexpected status code: ${responseContacts.status}`));
-          console.log(`(200else)contactError = ${contactError}`)
-        }
-        
-        setLoading(false);
-      } catch (err) {
-        if (err.response && err.response.status === 404) {
-          setContacts([]);
-          setContactError('責任者が存在しないようです。');
-          console.log(`(404)contactError = ${contactError}`)
-        } else {
-          setError(err);
-        }
-      } finally {
-        setLoading(false);
+      setLoading(false);
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        setCustomerDetail(null);
+        console.log('顧客が存在しないようです。');
+        navigate('/react/CustMgt'); 
+      } else {
+        setError(err);
       }
+    } finally {
+      setLoading(false);
     }
+  };
 
+  const fetchContacts = async () => {
+    try {
+      const responseContacts = await axios.get(`http://localhost:8080/CustMgt/${customerId}/contacts`)
+      console.log(responseContacts.data); 
 
-    fetchCustomerDetail ();
-    fetchContacts();
-  }, [customerId]);
+      if (responseContacts.status === 200) {
+        const contactsData = responseContacts.data;
+        setContacts(Array.isArray(contactsData) ? contactsData : [contactsData]);
+        setContactError('');
+        console.log(`(200)contactError = ${contactError}`)
+      } else {
+        setContacts([]);
+        setContactError(responseContacts.data.error);
+        // setContactError('責任者が存在しないようです。');
+        setError(new Error(`Unexpected status code: ${responseContacts.status}`));
+        console.log(`(200else)contactError = ${contactError}`)
+      }
+      
+      setLoading(false);
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        setContacts([]);
+        setContactError('責任者が存在しないようです。');
+        console.log(`(404)contactError = ${contactError}`)
+      } else {
+        setError(err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   if (loading) {
     return <p>Loading...</p>;
@@ -172,7 +165,7 @@ const KokyakukanriDetail  = () => {
       <br />
       <div className="result-fields">
           <div>
-        {customerDetail.length > 0 ? (
+        {contacts.length > 0 ? (
             <table>
               <thead>
                 <tr>
@@ -183,25 +176,16 @@ const KokyakukanriDetail  = () => {
                 </tr>
               </thead>
               <tbody>
-                {contacts.map(contact => (
-                  <tr key={contact.contactId}>
-                    <td>{contact.name}</td>
-                    <td>{contact.mail}</td>
-                    <td>{contact.tel}</td>
+                {Array.isArray(contacts) && contacts.map(contact => (
+                  <tr key={contact.contact_id}>
+                    <td>{contact.contact_name}</td>
+                    <td>{contact.contact_mail}</td>
+                    <td>{contact.contact_tel}</td>
                     <td>
                       <button id="btn" >変更</button>
                     </td>
                   </tr>
                 ))}
-                <tr >
-                  <td>contact.name</td>
-                  <td>contact.mail</td>
-                  <td>contact.tel</td>
-                  <td>
-                    <button className="control" id='contact-edit' >変更</button>
-                    <button className="control" id='contact-del' >削除</button>
-                  </td>
-                </tr>
               </tbody>
             </table>
             ) : (
@@ -217,7 +201,7 @@ const KokyakukanriDetail  = () => {
           </div>
       </div>
       <Modal title="責任者追加" open={isModalVisible} onCancel={handleCancel} footer={null}>
-        <CustMgtDetailForm onSubmit={handleOk} onCancel={handleCancel} customerId = {customerId}/>
+        <CustMgtDetailForm onSubmit={handlenSubmit} onCancel={handleCancel} customerId = {customerId}/>
       </Modal>
     </div>
   );

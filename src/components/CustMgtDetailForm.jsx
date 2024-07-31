@@ -22,23 +22,23 @@ const CustMgtDetailForm = ({ onSubmit, onCancel ,customerId}) => {
   const [form] = Form.useForm();
   
 
-  const onFinish = (values) => {
+  const handleFinish = (values) => {
     const formData = {
         ...values,
         customer_id: customerId,
-      };
+    };
 
     onSubmit(formData);
     form.resetFields();
     onCancel();
   };
 
-  const onReset = () => {
+  const handleReset = () => {
     form.resetFields();
   };
   
   return (
-    <Form {...layout} form={form} name="customer-form" onFinish={onFinish}>
+    <Form {...layout} form={form} name="customer-form" onFinish={handleFinish}>
         <h4 className='form-desc'>責任者追加</h4>
         <Form.Item
             name="contact_name"
@@ -65,9 +65,9 @@ const CustMgtDetailForm = ({ onSubmit, onCancel ,customerId}) => {
         >
             <Input type="tel"
                 placeholder="半角数字で入力してください"
-                pattern="\d{11}"
-                title="正しい電話番号をご入力ください。（123 1234 1234）"
-                maxLength={11}
+                pattern="\d{10}"
+                title="正しい電話番号をご入力ください。（123 123 1234）"
+                maxLength={10}
             />
         </Form.Item>
         
@@ -75,7 +75,7 @@ const CustMgtDetailForm = ({ onSubmit, onCancel ,customerId}) => {
             <Button 
                 className='form-button' 
                 htmlType="button" 
-                onClick={onReset}
+                onClick={handleReset}
             >
                 リセット
             </Button>
