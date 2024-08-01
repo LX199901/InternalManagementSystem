@@ -3,10 +3,11 @@ import { useParams, useNavigate  } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Modal } from 'antd';
 import CustMgtDetailForm from './CustMgtDetailForm';
+import CustMgtForm from './CustMgtForm';
 import './CustMgt.css';
 
 
-const KokyakukanriDetail  = () => {
+const KokyakukanriDetail  = ({employeeId = 1002}) => {
   const { customerId } = useParams();
   const [customerDetail, setCustomerDetail] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -14,7 +15,14 @@ const KokyakukanriDetail  = () => {
   const [error, setError] = useState(null);
   const [businessError, setBusinessError] = useState('');
   const [contactError, setContactError] = useState('');
+  //Customer
+  const [isCustomerModalVisible, setIsCustomerModalVisible] = useState(false);
+  const [currentCustomer, setCurrentCustomer] = useState(null);
+  //Contact
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentContact, setCurrentContact] = useState(null);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,8 +30,49 @@ const KokyakukanriDetail  = () => {
     fetchContacts();
   }, [customerId]);
 
+  
+  const handleCancel = () => {
+    // console.log("handleCancel")
+    setIsCustomerModalVisible(false);
+    setIsModalVisible(false);
+    setIsEditModalVisible(false);
+    // setCurrentContact(null);
+  };
+
+
+  //Customer Form
+  const showCustomerModal = (customerDetail) => {
+    // console.log("showModel_Contact")
+    setCurrentCustomer(customerDetail);
+    setIsCustomerModalVisible(true);
+    // console.log("customerDetail= ");
+    // console.log(currentCustomer);
+  };
+
+  const handleCustomerSubmit = async (values) => {
+    try {
+      const response = await axios.put((`http://localhost:8080/CustMgt/customers/${customerId}`), values);
+      if (response.status === 200) {
+        setIsCustomerModalVisible(false);
+        fetchCustomerDetail();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+  //Contact Form 
   const showModal = () => {
+    // console.log("showModel_Contact")
     setIsModalVisible(true);
+  };
+
+  const showEditModal = (contact) => {
+    setCurrentContact(contact);
+    setIsEditModalVisible(true);
+    // console.log("currentContact= ");
+    // console.log(currentContact);
   };
 
   const handlenSubmit = async (values) => {
@@ -40,16 +89,26 @@ const KokyakukanriDetail  = () => {
     }
   };
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
+  const handleEditSubmit = async (values) => {
+    try {
+      const response = await axios.put(`http://localhost:8080/CustMgt/contacts/${currentContact.contact_id}`, values);
+      if (response.status === 200) {
+        await new Promise(resolve => setTimeout(resolve, 500)); 
+        fetchContacts();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsEditModalVisible(false);
+    }
   };
   
 
-
+//Fetch
   const fetchCustomerDetail  = async () => {
     try {
       const response = await axios.get(`http://localhost:8080/CustMgt/customers/${customerId}`)
-      console.log(response.data); 
+      // console.log(response.data); 
 
       if (response.status === 200) {
         setCustomerDetail(response.data);
@@ -77,17 +136,15 @@ const KokyakukanriDetail  = () => {
   const fetchContacts = async () => {
     try {
       const responseContacts = await axios.get(`http://localhost:8080/CustMgt/${customerId}/contacts`)
-      console.log(responseContacts.data); 
-
+      // console.log(responseContacts.data); 
       if (responseContacts.status === 200) {
         const contactsData = responseContacts.data;
         setContacts(Array.isArray(contactsData) ? contactsData : [contactsData]);
         setContactError('');
-        console.log(`(200)contactError = ${contactError}`)
+        // console.log(`(200)contactError = ${contactError}`)
       } else {
         setContacts([]);
         setContactError(responseContacts.data.error);
-        // setContactError('責任者が存在しないようです。');
         setError(new Error(`Unexpected status code: ${responseContacts.status}`));
         console.log(`(200else)contactError = ${contactError}`)
       }
@@ -97,7 +154,7 @@ const KokyakukanriDetail  = () => {
       if (err.response && err.response.status === 404) {
         setContacts([]);
         setContactError('責任者が存在しないようです。');
-        console.log(`(404)contactError = ${contactError}`)
+        // console.log(`(404)contactError = ${contactError}`)
       } else {
         setError(err);
       }
@@ -158,14 +215,13 @@ const KokyakukanriDetail  = () => {
           </div>
 
           <div className='manage-button'>
-            <Button id="btn" >顧客変更</Button>
+            <Button onClick={() => showCustomerModal(customerDetail)}>顧客変更</Button>
           </div>
         </div>
       </div>
       <br />
       <div className="result-fields">
-          <div>
-        {contacts.length > 0 ? (
+          <div> {contacts.length > 0 ? (
             <table>
               <thead>
                 <tr>
@@ -182,7 +238,8 @@ const KokyakukanriDetail  = () => {
                     <td>{contact.contact_mail}</td>
                     <td>{contact.contact_tel}</td>
                     <td>
-                      <button id="btn" >変更</button>
+                      <button className="control" id='contact-edit' onClick={() => showEditModal(contact)}>変更</button>
+                      <button className="control" id='contact-del' >削除</button>
                     </td>
                   </tr>
                 ))}
@@ -201,8 +258,15 @@ const KokyakukanriDetail  = () => {
           </div>
       </div>
       <Modal title="責任者追加" open={isModalVisible} onCancel={handleCancel} footer={null}>
-        <CustMgtDetailForm onSubmit={handlenSubmit} onCancel={handleCancel} customerId = {customerId}/>
+        <CustMgtDetailForm onSubmit={handlenSubmit} onCancel={handleCancel} customerId = {customerId} contact={null}/>
       </Modal>
+      <Modal title="責任者変更" open={isEditModalVisible} onCancel={handleCancel} footer={null}>
+        <CustMgtDetailForm onSubmit={handleEditSubmit} onCancel={handleCancel} customerId = {customerId} contact={currentContact} />
+      </Modal>
+      <Modal title="顧客変更" open={isCustomerModalVisible} onCancel={handleCancel} footer={null}>
+        <CustMgtForm onSubmit={handleCustomerSubmit} onCancel={handleCancel} employeeId = {employeeId} customerInfo={currentCustomer}/>
+      </Modal>
+
     </div>
   );
 };

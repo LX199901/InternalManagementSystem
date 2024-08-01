@@ -1,30 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form, Input, Button } from 'antd';
 import './CustMgt.css';
 
 const layout = {
-  labelCol: {
-    span: 5,
-    
-  },
-  wrapperCol: {
-    offset: 0.5,
-    span: 18,
-    // offset: 0.5,
-  },
-};
-const tailLayout = {
-  wrapperCol: {
-    offset: 8,
-    span: 16,
-  },
+  labelCol: { span: 5},
+  wrapperCol: { offset: 0.5, span: 18 }
 };
 
-const CustMgtForm = ({ onSubmit, onCancel ,employeeId}) => {
+const tailLayout = {
+  wrapperCol: { offset: 8, span: 16 }
+};
+
+const CustMgtForm = ({ onSubmit, onCancel ,employeeId, customerInfo}) => {
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (customerInfo) {
+        form.setFieldsValue(customerInfo);
+    } else {
+        form.resetFields();
+    }
+  }, [customerInfo]);
   
 
-  const onFinish = (values) => {
+  const handleFinish = (values) => {
     const formData = {
         ...values,
         register_employee_id: employeeId,
@@ -35,19 +34,30 @@ const CustMgtForm = ({ onSubmit, onCancel ,employeeId}) => {
     onCancel();
   };
 
-  const onReset = () => {
+  const handleReset = () => {
     form.resetFields();
   };
   
   return (
-    <Form {...layout} form={form} name="customer-form" onFinish={onFinish}>
+    <Form {...layout} form={form} name="customer-form" onFinish={handleFinish}>
+        {/* <h4 className='form-desc'>顧客{customerInfo ? '変更' : '追加'}</h4> */}
         <h4 className='form-desc'>顧客情報</h4>
         <Form.Item
             name="customerId"
             label="顧客ID"
             rules={[{ required: false }]}
         >
-            <Input placeholder="システム指定" disabled />
+            <Input 
+                placeholder={customerInfo ? customerInfo.customer_id : 'システム指定'}
+                disabled />
+        </Form.Item>
+
+        <Form.Item
+            name="customer_name"
+            label="会社名"
+            rules={[{ required: true, message: '会社名をご入力ください。' }]}
+        >
+            <Input />
         </Form.Item>
 
         <Form.Item
@@ -62,15 +72,7 @@ const CustMgtForm = ({ onSubmit, onCancel ,employeeId}) => {
             />
         </Form.Item>
 
-        <Form.Item
-            name="customer_name"
-            label="会社名"
-            rules={[{ required: true, message: '会社名をご入力ください。' }]}
-        >
-            <Input />
-        </Form.Item>
-
-        <Form.Item
+         <Form.Item
             name="customer_tel"
             label="会社電話"
             rules={[{ required: true, message: '会社電話をご入力ください。' }]}
@@ -115,7 +117,7 @@ const CustMgtForm = ({ onSubmit, onCancel ,employeeId}) => {
             <Button 
                 className='form-button' 
                 htmlType="button" 
-                onClick={onReset}
+                onClick={handleReset}
             >
                 リセット
             </Button>

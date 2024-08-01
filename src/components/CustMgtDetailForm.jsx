@@ -1,45 +1,47 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form, Input, Button } from 'antd';
 import './CustMgt.css';
 
 const layout = {
-  labelCol: {
-    span: 6,
-  },
-  wrapperCol: {
-    offset: 0.5,
-    span: 17,
-   },
-};
-const tailLayout = {
-  wrapperCol: {
-    offset: 8,
-    span: 16,
-  },
+  labelCol: { span: 6 },
+  wrapperCol: { offset: 0.5, span: 17 }
 };
 
-const CustMgtDetailForm = ({ onSubmit, onCancel ,customerId}) => {
-  const [form] = Form.useForm();
+const tailLayout = {
+  wrapperCol: { offset: 8, span: 16 }
+};
+
+const CustMgtDetailForm = ({ onSubmit, onCancel ,customerId, contact}) => {
+  const [customerDetailForm] = Form.useForm();
   
+  useEffect(() => {
+    if (contact) {
+        customerDetailForm.setFieldsValue(contact);
+    } else {
+        customerDetailForm.resetFields();
+    }
+  }, [contact]);
 
   const handleFinish = (values) => {
     const formData = {
         ...values,
-        customer_id: customerId,
+        customer_id: contact?.customer_id || null,
     };
 
     onSubmit(formData);
-    form.resetFields();
-    onCancel();
+    customerDetailForm.resetFields();
+    // onCancel();
   };
 
   const handleReset = () => {
-    form.resetFields();
+    customerDetailForm.resetFields();
+    // console.log(customerDetailForm);
   };
   
   return (
-    <Form {...layout} form={form} name="customer-form" onFinish={handleFinish}>
-        <h4 className='form-desc'>責任者追加</h4>
+    <Form {...layout} form={customerDetailForm} name="contact-form" onFinish={handleFinish}>
+        {/* <h4 className='form-desc'>責任者{contact ? '変更' : '追加'}</h4> */}
+        <h4 className='form-desc'>会社/部門責任者情報</h4>
         <Form.Item
             name="contact_name"
             label="責任者氏名"
